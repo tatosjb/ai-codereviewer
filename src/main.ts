@@ -30,13 +30,13 @@ async function getPRDetails(): Promise<PRDetails> {
   const { repository, number } = !!process.env.GITHUB_EVENT_PATH  ? JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
   ) : {
-    "repository": {
-      "name": STATIC_OWNER,
-      "owner": {
-        "login": STATIC_OWNER
+    repository: {
+      name: STATIC_REPOSITORY,
+      owner: {
+        login: STATIC_OWNER
       }
     },
-    "number": STATIC_PR,
+    number: STATIC_PR,
   };
   
   const prResponse = await octokit.pulls.get({
