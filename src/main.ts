@@ -8,6 +8,9 @@ import minimatch from "minimatch";
 const GITHUB_TOKEN: string = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY: string = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL: string = core.getInput("OPENAI_API_MODEL");
+const STATIC_REPOSITORY: string = core.getInput("STATIC_REPOSITORY");
+const STATIC_OWNER: string = core.getInput("STATIC_OWNER");
+const STATIC_PR: string = core.getInput("STATIC_PR");
 
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
@@ -24,9 +27,18 @@ interface PRDetails {
 }
 
 async function getPRDetails(): Promise<PRDetails> {
-  const { repository, number } = JSON.parse(
+  const { repository, number } = !!process.env.GITHUB_EVENT_PATH  ? JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
-  );
+  ) : {
+    "repository": {
+      "name": STATIC_OWNER,
+      "owner": {
+        "login": STATIC_OWNER
+      }
+    },
+    "number": STATIC_PR,
+  };
+  
   const prResponse = await octokit.pulls.get({
     owner: repository.owner.login,
     repo: repository.name,
